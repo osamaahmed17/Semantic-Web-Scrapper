@@ -25,7 +25,7 @@ describe("Default Spider", function() {
     describe("isLinkUrl", function() {
         var spider = new Spider("http://example.com/");
         it("return true if same domain", function(done) {
-            spider.isLinkUrl("example.com/foo")
+            spider.isLinkUrl("http://example.com/foo")
                 .then(function(value) {
                     assert.equal(value, true);
                     done();

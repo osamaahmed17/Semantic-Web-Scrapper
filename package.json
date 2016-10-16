@@ -1,10 +1,11 @@
 {
-  "name": "node-semantic-scraper",
+  "name": "semantic-scraper",
   "version": "1.0.0",
   "description": "",
   "scripts": {
     "test": "make tests"
   },
+  "main" : "./src/index.js",
   "repository": {
     "type": "git",
     "url": "git+ssh://github.com/petitchevalroux/node-semantic-scraper.git"
@@ -24,7 +25,16 @@
     "sinon": "^1.17.5"
   },
   "dependencies": {
+    "@petitchevalroux/error": "^1.0.1",
+    "bluebird": "^3.4.6",
+    "cheerio": "^0.22.0",
+    "content-type": "^1.0.2",
+    "limiter": "^1.1.0",
     "normalize-url": "^1.6.1",
-    "promise": "^7.1.1"
+    "request": "^2.75.0",
+    "sprintf-js": "^1.0.3",
+    "trace-error": "0.0.7",
+    "unique-stream": "^2.2.1",
+    "winston": "^2.2.0"
   }
 }
