@@ -7,9 +7,11 @@ var util = require("util");
 var process = require("process");
 
 var regexes = [];
-regexes.push(new RegExp(
-    "^https?://dev.petitchevalroux.net/index(\..*?|)\.html"));
+regexes.push(
+    new RegExp("^https?://dev.petitchevalroux.net/index(\..*?|)\.html")
+);
 var mapping = [];
+// Extract all articles
 mapping.push({
     "type": "articles",
     "selector": "table.contents h5 a",
@@ -27,19 +29,24 @@ mapping.push({
 function SampleSpider() {
     RegexSpider.call(
         this,
+        // Start Url
         "http://dev.petitchevalroux.net/index.html",
+        // Regexes matching urls to extract links from
         regexes,
+        // Regexes matching urls to extract data from
         regexes,
         mapping
     );
 }
 util.inherits(SampleSpider, RegexSpider);
+
 var crawler = new Crawler();
 crawler.write(new SampleSpider());
 crawler
     .on("data", function(data) {
-        process.stdout.write(util.format("%j\n", data));
+        process.stdout.write("data:" + JSON.stringify(data, null, 2) + "\n");
     })
     .on("error", function(error) {
-        process.stderr.write(util.format("errro: %j\n", error));
+        process.stdout.write("error:" + JSON.stringify(error, null, 2) +
+            "\n");
     });
