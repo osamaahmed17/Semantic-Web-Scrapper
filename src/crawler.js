@@ -58,7 +58,8 @@ Crawler.prototype._write = function(spider, encoding, callback) {
         .then(function(spiderId) {
             return spider.getExtractor()
                 .then(function(extractor) {
-                    extractor.on("data",
+                    extractor
+                        .on("data",
                             function(data) {
                                 self.handleExtract(
                                     data.items,
