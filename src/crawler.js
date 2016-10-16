@@ -32,7 +32,7 @@ var Crawler = function(options) {
                 chunk.context.spiderId);
         })
         .on("error", function(err) {
-            logger.error(err);
+            self.emit("error", new Error(err));
         });
 };
 
@@ -67,7 +67,7 @@ Crawler.prototype._write = function(spider, encoding, callback) {
                                 );
                             })
                         .on("error", function(err) {
-                            logger.error(err);
+                            self.emit("error", new Error(err));
                         });
                     return spider.getStartUrl();
                 })
@@ -126,7 +126,7 @@ Crawler.prototype.handleExtract = function(items, url, spiderId) {
                         link.url))] = true;
                 }
             } catch (err) {
-                logger.error(new Error(
+                self.emit("error", new Error(
                     "normalizing (url: %j, link:%j)", url,
                     link));
             }
@@ -173,7 +173,7 @@ Crawler.prototype.handleUrl = function(url, spiderId) {
             return results;
         })
         .catch(function(err) {
-            logger.error(err);
+            self.emit("error", new Error(err));
         });
 };
 
