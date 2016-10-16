@@ -66,7 +66,8 @@ Downloader.prototype.createHostStream = function(host) {
                 self.push(chunk);
             })
             .on("error", function(err) {
-                self.emit("error", new Error(err));
+                self.emit("error", new Error(
+                    "host stream (host:%s)", host, err));
             });
         resolve(self.hostStreams[host]);
     });

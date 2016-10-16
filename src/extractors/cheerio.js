@@ -65,8 +65,10 @@ CheerioExtractor.prototype._transform = function(chunk, encoding, callback) {
             "items": items
         });
     } catch (err) {
-        callback(new Error("extracting object (chunk.context: %j)", chunk.context,
+        self.emit("error", new Error("extracting object (chunk.context:%j)",
+            chunk.context,
             err));
+        callback(err);
     }
 };
 
