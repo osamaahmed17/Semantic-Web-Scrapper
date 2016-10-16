@@ -8,7 +8,7 @@ var request = require("request");
 var urlModule = require("url");
 var path = require("path");
 var HttpFetcher = require(path.join(__dirname, "http-fetcher"));
-var logger = require(path.join(__dirname, "logger"));
+var Error = require("@petitchevalroux/error");
 
 function Downloader(options) {
     if (!(this instanceof Downloader)) {
@@ -66,7 +66,7 @@ Downloader.prototype.createHostStream = function(host) {
                 self.push(chunk);
             })
             .on("error", function(err) {
-                logger.error(err);
+                self.emit("error", new Error(err));
             });
         resolve(self.hostStreams[host]);
     });
