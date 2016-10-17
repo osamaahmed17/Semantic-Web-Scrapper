@@ -114,6 +114,31 @@ CheerioExtractor.prototype.transform = function(operations, value) {
             value = value.trim();
         } else if (operation === "entities") {
             value = entitiesDecode(value);
+        } else if (operation === "normalizeWhitespace") {
+            /* eslint-disable no-control-regex*/
+            // Replace tab,
+            // space,
+            // non breaking space(\xA0)
+            // with space
+            value = value.replace(
+                new RegExp("[\t \xA0]+", "g"),
+                " "
+            );
+            // Replace space u0020,
+            // carriage return u000D,
+            // next page u2398 before end of line u000A
+            value = value.replace(
+                new RegExp("[\r\f ]+\u000A+", "g"),
+                "\n"
+            );
+            // Replace multiple end of line and whitespace
+            value = value
+                .replace(
+                    new RegExp("\n+[\r\f ]*", "g"),
+                    "\n"
+                )
+                .trim();
+            /* eslint-enable no-control-regex*/
         }
     });
     return value;
