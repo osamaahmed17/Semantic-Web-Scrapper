@@ -5,6 +5,10 @@ var util = require("util");
 var Error = require("@petitchevalroux/error");
 var cheerio = require("cheerio");
 var contentType = require("content-type");
+var Entities = require("html-entities")
+    .AllHtmlEntities;
+var entities = new Entities();
+var entitiesDecode = entities.decode;
 
 
 function CheerioExtractor(options) {
@@ -50,6 +54,12 @@ CheerioExtractor.prototype._transform = function(chunk, encoding, callback) {
                             }
                             if (typeof(value) ===
                                 "string") {
+                                if (rule.transforms) {
+                                    value = self.transform(
+                                        rule.transforms,
+                                        value
+                                    );
+                                }
                                 outItem[property] =
                                     value;
                             }
@@ -90,6 +100,23 @@ CheerioExtractor.prototype.isXml = function(headers) {
         return value.type === "text/xml" || "application/xml";
     }
     return false;
+};
+
+/**
+ * Perform value transformation
+ * @param {array} operations
+ * @param {string} value
+ * @returns {string}
+ */
+CheerioExtractor.prototype.transform = function(operations, value) {
+    operations.forEach(function(operation) {
+        if (operation === "trim") {
+            value = value.trim();
+        } else if (operation === "entities") {
+            value = entitiesDecode(value);
+        }
+    });
+    return value;
 };
 
 module.exports = CheerioExtractor;
