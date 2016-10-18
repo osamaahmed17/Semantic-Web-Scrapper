@@ -57,7 +57,8 @@ CheerioExtractor.prototype._transform = function(chunk, encoding, callback) {
                                 if (rule.transforms) {
                                     value = self.transform(
                                         rule.transforms,
-                                        value
+                                        value,
+                                        ruleItem.html()
                                     );
                                 }
                                 outItem[property] =
@@ -108,7 +109,7 @@ CheerioExtractor.prototype.isXml = function(headers) {
  * @param {string} value
  * @returns {string}
  */
-CheerioExtractor.prototype.transform = function(operations, value) {
+CheerioExtractor.prototype.transform = function(operations, value, html) {
     operations.forEach(function(operation) {
         if (operation === "trim") {
             value = value.trim();
@@ -139,7 +140,16 @@ CheerioExtractor.prototype.transform = function(operations, value) {
                 )
                 .trim();
             /* eslint-enable no-control-regex*/
+        } else if (operation === "preserveLineBreak") {
+            if (typeof(html) === "string") {
+                html = html
+                    .replace(/<br\s?\/?>/gi, "\n")
+                    .replace(/<p\.*?>(.*?)<\/p>/gi, "\n$1\n");
+                value = cheerio.load(html)
+                    .text();
+            }
         }
+
     });
     return value;
 };
