@@ -97,4 +97,37 @@ describe("Cheerio Extractor", function() {
         });
     });
 
+    describe("transform properties", function() {
+        var html =
+            "<html><body><h1>  &lt;&gt;&quot;&amp;&copy;&#8710;    </h1></body></html>";
+        var extractor = new Extractor();
+        extractor.on("data", function(data) {
+            it(
+                "return trimmed property with decoded entities",
+                function(done) {
+                    assert.equal(data.items.objects[
+                            0].feature,
+                        "<>\"&©∆");
+                    done();
+                });
+        });
+        extractor.write({
+            "mapping": [{
+                "type": "objects",
+                "selector": "body",
+                "properties": {
+                    "feature": {
+                        "selector": ":nth-child(1)",
+                        "from": "text",
+                        "transforms": ["trim",
+                            "entities"
+                        ]
+                    }
+                }
+            }],
+            "content": html,
+            "context": "foo"
+        });
+    });
+
 });
