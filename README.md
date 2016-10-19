@@ -1,4 +1,7 @@
 # node-semantic-scraper
+## Todo
+ * Move transform function from cheerio-extractors
+ * Improve code coverage
 
 ## Install
 ```
