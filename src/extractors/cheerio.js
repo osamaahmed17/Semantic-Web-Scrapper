@@ -57,7 +57,8 @@ CheerioExtractor.prototype._transform = function(chunk, encoding, callback) {
                                 if (rule.transforms) {
                                     value = self.transform(
                                         rule.transforms,
-                                        value
+                                        value,
+                                        ruleItem.html()
                                     );
                                 }
                                 outItem[property] =
@@ -108,13 +109,47 @@ CheerioExtractor.prototype.isXml = function(headers) {
  * @param {string} value
  * @returns {string}
  */
-CheerioExtractor.prototype.transform = function(operations, value) {
+CheerioExtractor.prototype.transform = function(operations, value, html) {
     operations.forEach(function(operation) {
         if (operation === "trim") {
             value = value.trim();
         } else if (operation === "entities") {
             value = entitiesDecode(value);
+        } else if (operation === "normalizeWhitespace") {
+            /* eslint-disable no-control-regex*/
+            // Replace tab,
+            // space,
+            // non breaking space(\xA0)
+            // with space
+            value = value.replace(
+                new RegExp("[\t \xA0]+", "g"),
+                " "
+            );
+            // Replace space u0020,
+            // carriage return u000D,
+            // next page u2398 before end of line u000A
+            value = value.replace(
+                new RegExp("[\r\f ]+\u000A+", "g"),
+                "\n"
+            );
+            // Replace multiple end of line and whitespace
+            value = value
+                .replace(
+                    new RegExp("\n+[\r\f ]*", "g"),
+                    "\n"
+                )
+                .trim();
+            /* eslint-enable no-control-regex*/
+        } else if (operation === "preserveLineBreak") {
+            if (typeof(html) === "string") {
+                html = html
+                    .replace(/<br\s?\/?>/gi, "\n")
+                    .replace(/<p\.*?>(.*?)<\/p>/gi, "\n$1\n");
+                value = cheerio.load(html)
+                    .text();
+            }
         }
+
     });
     return value;
 };

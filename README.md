@@ -1,4 +1,9 @@
 # node-semantic-scraper
+NodeJS html/xml scraper for extracting structured data from websites
+
+## Todo
+ * Move transform function from cheerio-extractors
+ * Improve code coverage
 
 ## Install
 ```
