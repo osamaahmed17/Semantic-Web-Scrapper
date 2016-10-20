@@ -135,11 +135,26 @@ Crawler.prototype.handleExtract = function(items, url, spiderId) {
             }
         });
     }
-    delete items.links;
-    self.push({
-        url: url,
-        items: items
-    });
+
+    var spider = this.spiders[spiderId];
+    spider.isExtractUrl(url)
+        .then(function(isExtract) {
+            delete items.links;
+            if (isExtract) {
+                self.push({
+                    url: url,
+                    items: items
+                });
+            }
+            return isExtract;
+        })
+        .catch(function(err) {
+            self.emit(
+                "error",
+                new Error("isExtract (url: %s)", url, err)
+            );
+        });
+
     Object.getOwnPropertyNames(urls)
         .forEach(function(url) {
             self.handleUrl(url, spiderId);
