@@ -18,10 +18,10 @@ var Crawler = function(options) {
     }
     var self = this;
     self.options = options || {};
-    self.options.objectMode = true;
-    self.downloader = self.options.downloader || new Downloader();
-    delete self.options.downloader;
-    Duplex.call(self, this.options);
+    self.downloader = self.options.downloader || new Downloader(self.options);
+    Duplex.call(self, {
+        "objectMode": true
+    });
     self.downloadStream = new Stream();
     self.downloadStream.readable = true;
     self.downloadStream
