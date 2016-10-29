@@ -14,17 +14,20 @@ function Downloader(options) {
     if (!(this instanceof Downloader)) {
         return new Downloader(options);
     }
-    this.options = options || {};
+    this.options = Object.assign({
+        "timeout": 5000
+    }, options || {});
     this.httpClient = request.defaults({
-        "timeout": 5000,
+        "timeout": this.options.timeout,
         "gzip": true,
         "headers": {
             "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.12; rv:49.0) Gecko/20100101 Firefox/49.0"
         }
     });
 
-    this.options.objectMode = true;
-    Transform.call(this, this.options);
+    Transform.call(this, {
+        "objectMode": true
+    });
 }
 
 util.inherits(Downloader, Transform);
@@ -58,9 +61,9 @@ Downloader.prototype.getHostStream = function(host) {
 Downloader.prototype.createHostStream = function(host) {
     var self = this;
     return new Promise(function(resolve) {
-        self.hostStreams[host] = new HttpFetcher({
-            "httpClient": self.httpClient
-        });
+        var options = self.options;
+        options.httpClient = self.httpClient;
+        self.hostStreams[host] = new HttpFetcher(options);
         self.hostStreams[host]
             .on("data", function(chunk) {
                 self.push(chunk);

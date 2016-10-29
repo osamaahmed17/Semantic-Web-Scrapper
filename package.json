@@ -33,6 +33,7 @@
     "limiter": "^1.1.0",
     "normalize-url": "^1.6.1",
     "request": "^2.75.0",
+    "retry": "^0.10.0",
     "sprintf-js": "^1.0.3",
     "trace-error": "0.0.7",
     "unique-stream": "^2.2.1",
