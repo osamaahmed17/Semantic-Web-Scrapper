@@ -21,9 +21,9 @@ util.inherits(CheerioExtractor, Transform);
 CheerioExtractor.prototype._transform = function(chunk, encoding, callback) {
     var self = this;
     try {
-        var isXml = this.isXml(chunk.headers);
+        var validContentType = this.getValidContentType(chunk.headers);
         var domContext = cheerio.load(chunk.content, {
-            "xmlMode": isXml
+            "xmlMode": validContentType === "text/xml"
         });
         var items = {};
 
@@ -95,24 +95,25 @@ CheerioExtractor.prototype.addItem = function(type, items, item) {
     return items;
 };
 
-CheerioExtractor.prototype.isXml = function(headers) {
-    try {
-        if (typeof(headers) === "object" && typeof(headers["content-type"]) ===
-            "string") {
-            var value = contentType.parse(headers["content-type"].replace(
-                /\;$/, ""));
-            return (value.type === "text/xml" || value.type ===
-                "application/xml");
+/**
+ * Return text/xml or text/html from content-type header or throw an error
+ * @param {object} headers
+ * @returns {String}
+ */
+CheerioExtractor.prototype.getValidContentType = function(headers) {
+    if (typeof(headers) === "object" &&
+        typeof(headers["content-type"]) === "string") {
+        var value = contentType.parse(headers["content-type"]
+            .replace(/\;$/, ""));
+        if (value.type === "text/xml" ||
+            value.type === "application/xml" ||
+            value.type === "application/xhtml+xml") {
+            return "text/xml";
+        } else if (value.type === "text/html") {
+            return "text/html";
         }
-    } catch (err) {
-        this.emit(
-            "error",
-            new Error("isXml (headers:%j)",
-                headers,
-                err
-            ));
     }
-    return false;
+    throw new Error("Invalid Content-Type header (headers:%j)", headers);
 };
 
 /**

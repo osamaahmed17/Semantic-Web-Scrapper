@@ -54,6 +54,9 @@ describe("Cheerio Extractor", function() {
                 }
             }],
             "content": html,
+            "headers": {
+                "content-type": "text/html"
+            },
             "context": "foo"
         });
     });
@@ -93,6 +96,9 @@ describe("Cheerio Extractor", function() {
                 }
             }],
             "content": html,
+            "headers": {
+                "content-type": "text/html"
+            },
             "context": "foo"
         });
     });
@@ -142,49 +148,52 @@ describe("Cheerio Extractor", function() {
                 }
             }],
             "content": html,
+            "headers": {
+                "content-type": "text/html"
+            },
             "context": "foo"
         });
     });
-    describe("isXml", function() {
+    describe("getValidContentType", function() {
         var extractor = new Extractor();
         it(
             "identify valid text/xml content type without encoding",
             function() {
-                assert.equal(extractor.isXml({
+                assert.equal(extractor.getValidContentType({
                     "content-type": "text/xml"
-                }), true);
+                }), "text/xml");
             });
         it(
             "identify valid application/xml content type without encoding",
             function() {
-                assert.equal(extractor.isXml({
+                assert.equal(extractor.getValidContentType({
                     "content-type": "application/xml"
-                }), true);
+                }), "text/xml");
             });
         it("identify valid text/xml content type with encoding",
             function() {
-                assert.equal(extractor.isXml({
+                assert.equal(extractor.getValidContentType({
                     "content-type": "text/xml; charset=utf-8"
-                }), true);
+                }), "text/xml");
             });
         it(
             "identify valid application/xml content type with encoding",
             function() {
-                assert.equal(extractor.isXml({
+                assert.equal(extractor.getValidContentType({
                     "content-type": "text/xml; charset=utf-8"
-                }), true);
+                }), "text/xml");
             });
         it(
             "identify valid application/xml content type with trailing semi-colon",
             function() {
-                assert.equal(extractor.isXml({
+                assert.equal(extractor.getValidContentType({
                     "content-type": "text/xml;"
-                }), true);
+                }), "text/xml");
             });
         it("identify valid text/html", function() {
-            assert.equal(extractor.isXml({
+            assert.equal(extractor.getValidContentType({
                 "content-type": "text/html"
-            }), false);
+            }), "text/html");
         });
     });
 });
