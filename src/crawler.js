@@ -122,11 +122,13 @@ Crawler.prototype.handleExtract = function(items, url, spiderId) {
     if (items.links) {
         items.links.forEach(function(link) {
             try {
-                var toLower = link.url.toLowerCase();
-                if (toLower.substr(0, 7) !== "mailto:") {
-                    urls[normalizeUrl(urlModule.resolve(
-                        url,
-                        link.url))] = true;
+                if (typeof(link.url) === "string") {
+                    var toLower = link.url.toLowerCase();
+                    if (toLower.substr(0, 7) !== "mailto:") {
+                        urls[normalizeUrl(urlModule.resolve(
+                            url,
+                            link.url))] = true;
+                    }
                 }
             } catch (err) {
                 self.emit("error", new Error(
