@@ -19,13 +19,13 @@ function CheerioExtractor(options) {
 util.inherits(CheerioExtractor, Transform);
 
 CheerioExtractor.prototype._transform = function(chunk, encoding, callback) {
+    var self = this;
     try {
         var isXml = this.isXml(chunk.headers);
         var domContext = cheerio.load(chunk.content, {
             "xmlMode": isXml
         });
         var items = {};
-        var self = this;
 
         chunk.mapping.forEach(function(typeMapping) {
             domContext(typeMapping.selector)
