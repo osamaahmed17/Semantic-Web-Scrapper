@@ -145,5 +145,46 @@ describe("Cheerio Extractor", function() {
             "context": "foo"
         });
     });
-
+    describe("isXml", function() {
+        var extractor = new Extractor();
+        it(
+            "identify valid text/xml content type without encoding",
+            function() {
+                assert.equal(extractor.isXml({
+                    "content-type": "text/xml"
+                }), true);
+            });
+        it(
+            "identify valid application/xml content type without encoding",
+            function() {
+                assert.equal(extractor.isXml({
+                    "content-type": "application/xml"
+                }), true);
+            });
+        it("identify valid text/xml content type with encoding",
+            function() {
+                assert.equal(extractor.isXml({
+                    "content-type": "text/xml; charset=utf-8"
+                }), true);
+            });
+        it(
+            "identify valid application/xml content type with encoding",
+            function() {
+                assert.equal(extractor.isXml({
+                    "content-type": "text/xml; charset=utf-8"
+                }), true);
+            });
+        it(
+            "identify valid application/xml content type with trailing semi-colon",
+            function() {
+                assert.equal(extractor.isXml({
+                    "content-type": "text/xml;"
+                }), true);
+            });
+        it("identify valid text/html", function() {
+            assert.equal(extractor.isXml({
+                "content-type": "text/html"
+            }), false);
+        });
+    });
 });

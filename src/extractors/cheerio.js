@@ -96,9 +96,21 @@ CheerioExtractor.prototype.addItem = function(type, items, item) {
 };
 
 CheerioExtractor.prototype.isXml = function(headers) {
-    if (typeof(headers) === "object" && headers["content-type"]) {
-        var value = contentType.parse(headers["content-type"]);
-        return value.type === "text/xml" || "application/xml";
+    try {
+        if (typeof(headers) === "object" && typeof(headers["content-type"]) ===
+            "string") {
+            var value = contentType.parse(headers["content-type"].replace(
+                /\;$/, ""));
+            return (value.type === "text/xml" || value.type ===
+                "application/xml");
+        }
+    } catch (err) {
+        this.emit(
+            "error",
+            new Error("isXml (headers:%j)",
+                headers,
+                err
+            ));
     }
     return false;
 };
