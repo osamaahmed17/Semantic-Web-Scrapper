@@ -1,6 +1,6 @@
 "use strict";
 var path = require("path");
-var scraper = require(path.join(__dirname, "index"));
+var scraper = require(path.join(__dirname, ".."));
 var RegexSpider = scraper.RegexSpider;
 var Crawler = scraper.Crawler;
 var util = require("util");
