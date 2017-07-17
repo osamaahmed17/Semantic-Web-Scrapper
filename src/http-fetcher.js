@@ -55,10 +55,14 @@ HttpFetcherStream.prototype.get = function(chunk, callback) {
         self.options.httpClient.get(chunk.url, function(err,
             response, body) {
             if (err) {
+                self.emit("http:error", err);
                 callback(new Error(
                     "Unable to download (chunk: %j)",
                     chunk, err));
-            } else if (response.statusCode !== 200) {
+                return;
+            }
+            self.emit("http:response", response);
+            if (response.statusCode !== 200) {
                 callback(new Error(
                     "Non 200 http status (response: %j)",
                     response));

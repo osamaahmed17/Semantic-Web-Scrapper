@@ -25,6 +25,9 @@ function Downloader(options) {
         }
     });
 
+    this.HttpFetcher = this.options.HttpFetcher ?
+        this.options.HttpFetcher : HttpFetcher;
+
     Transform.call(this, {
         "objectMode": true
     });
@@ -63,7 +66,7 @@ Downloader.prototype.createHostStream = function(host) {
     return new Promise(function(resolve) {
         var options = self.options;
         options.httpClient = self.httpClient;
-        self.hostStreams[host] = new HttpFetcher(options);
+        self.hostStreams[host] = new self.HttpFetcher(options);
         self.hostStreams[host]
             .on("data", function(chunk) {
                 self.push(chunk);
@@ -71,6 +74,12 @@ Downloader.prototype.createHostStream = function(host) {
             .on("error", function(err) {
                 self.emit("error", new Error(
                     "host stream (host:%s)", host, err));
+            })
+            .on("http:response", function(response) {
+                self.emit("http:response", response);
+            })
+            .on("http:error", function(err) {
+                self.emit("http:error", err);
             });
         resolve(self.hostStreams[host]);
     });
