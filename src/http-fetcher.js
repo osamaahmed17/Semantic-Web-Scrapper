@@ -55,6 +55,7 @@ HttpFetcherStream.prototype.get = function(chunk, callback) {
         self.options.httpClient.get(chunk.url, function(err,
             response, body) {
             if (err) {
+                err.url = chunk.url;
                 self.emit("http:error", err);
                 callback(new Error(
                     "Unable to download (chunk: %j)",
