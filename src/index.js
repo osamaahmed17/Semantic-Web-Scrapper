@@ -5,5 +5,7 @@ var path = require("path");
 module.exports = {
     RegexSpider: require(path.join(__dirname, "spiders", "regex")),
     Spider: require(path.join(__dirname, "spiders", "default")),
-    Crawler: require(path.join(__dirname, "crawler"))
+    Crawler: require(path.join(__dirname, "crawler")),
+    HttpFetcher: require(path.join(__dirname, "http-fetcher")),
+    Downloader: require(path.join(__dirname, "downloader")),
 };
