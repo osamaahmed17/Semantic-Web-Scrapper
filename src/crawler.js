@@ -156,8 +156,7 @@ Crawler.prototype.handleExtract = function(items, url, spiderId) {
                 new Error("isExtract (url: %s)", url, err)
             );
         });
-
-    Object.getOwnPropertyNames(urls)
+    Object.keys(urls)
         .forEach(function(url) {
             self.handleUrl(url, spiderId);
         });
