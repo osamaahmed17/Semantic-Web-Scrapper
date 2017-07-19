@@ -157,20 +157,17 @@ Crawler.prototype.handleExtract = function(items, url, spiderId) {
             );
         });
     Object.keys(urls)
-        .forEach(function(url) {
-            self.handleUrl(url, spiderId);
+        .forEach(function(linkUrl) {
+            self.handleUrl(linkUrl, spiderId, url);
         });
 };
 
-Crawler.prototype.handleUrl = function(url, spiderId) {
-    var promises = [];
+Crawler.prototype.handleUrl = function(url, spiderId, contextUrl) {
     var spider = this.spiders[spiderId];
     var self = this;
-    promises.push(spider.isLinkUrl(url));
-    promises.push(spider.isExtractUrl(url));
     Promise
         .all([
-            spider.isLinkUrl(url),
+            spider.isLinkUrl(url, contextUrl),
             spider.isExtractUrl(url)
         ])
         .then(function(results) {
