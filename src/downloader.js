@@ -15,15 +15,10 @@ function Downloader(options) {
         return new Downloader(options);
     }
     this.options = Object.assign({
-        "timeout": 5000
+        "timeout": 5000,
+        "followRedirect": true,
+        "maxRedirects": 2
     }, options || {});
-    this.httpClient = request.defaults({
-        "timeout": this.options.timeout,
-        "gzip": true,
-        "headers": {
-            "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.12; rv:49.0) Gecko/20100101 Firefox/49.0"
-        }
-    });
 
     this.HttpFetcher = this.options.HttpFetcher ?
         this.options.HttpFetcher : HttpFetcher;
@@ -34,6 +29,21 @@ function Downloader(options) {
 }
 
 util.inherits(Downloader, Transform);
+
+Downloader.prototype.getHttpClient = function() {
+    if (!this.httpClient) {
+        this.httpClient = request.defaults({
+            "timeout": this.options.timeout,
+            "followRedirect": this.options.followRedirect,
+            "maxRedirects": this.options.maxRedirects,
+            "gzip": true,
+            "headers": {
+                "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.12; rv:49.0) Gecko/20100101 Firefox/49.0"
+            }
+        });
+    }
+    return this.httpClient;
+};
 
 Downloader.prototype._transform = function(chunk, encoding, callback) {
     var host = urlModule.parse(chunk.url)
@@ -64,8 +74,9 @@ Downloader.prototype.getHostStream = function(host) {
 Downloader.prototype.createHostStream = function(host) {
     var self = this;
     return new Promise(function(resolve) {
-        var options = self.options;
-        options.httpClient = self.httpClient;
+        var options = Object.assign({}, {
+            "httpClient": self.getHttpClient()
+        }, self.options);
         self.hostStreams[host] = new self.HttpFetcher(options);
         self.hostStreams[host]
             .on("data", function(chunk) {
