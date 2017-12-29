@@ -2,14 +2,17 @@
 var Promise = require("bluebird");
 var urlModule = require("url");
 var normalizeUrl = require("normalize-url");
-var Stream = require("stream");
 var uniqueStream = require("unique-stream");
 var Error = require("@petitchevalroux/error");
 var path = require("path");
 var logger = require(path.join(__dirname, "logger"));
-var Duplex = require("stream")
-    .Duplex;
-var Downloader = require("./downloader");
+var {
+    Duplex,
+    PassThrough,
+    Writable
+} = require("stream");
+var DownloadStream = require("@petitchevalroux/http-download-stream")
+    .Stream;
 var util = require("util");
 
 var Crawler = function(options) {
@@ -18,22 +21,9 @@ var Crawler = function(options) {
     }
     var self = this;
     self.options = options || {};
-    self.downloader = self.options.downloader || new Downloader(self.options);
     Duplex.call(self, {
         "objectMode": true
     });
-    self.downloadStream = new Stream();
-    self.downloadStream.readable = true;
-    self.downloadStream
-        .pipe(uniqueStream())
-        .pipe(self.downloader)
-        .on("data", function(chunk) {
-            self.handleDownload(chunk.body, chunk.headers, chunk.url,
-                chunk.context.spiderId);
-        })
-        .on("error", function(err) {
-            self.emit("error", new Error("download stream", err));
-        });
 };
 
 util.inherits(Crawler, Duplex);
@@ -77,9 +67,7 @@ Crawler.prototype._write = function(spider, encoding, callback) {
                 .then(function(url) {
                     return {
                         "url": url,
-                        "context": {
-                            "spiderId": spiderId
-                        }
+                        "spiderId": spiderId
                     };
                 });
         })
@@ -106,8 +94,36 @@ Crawler.prototype.getDownloader = function() {
 };
 
 Crawler.prototype.download = function(chunk) {
-    this.downloadStream.emit("data", chunk);
+    this.getDownloadStream(chunk.spiderId)
+        .write(chunk.url);
 };
+
+Crawler.prototype.getDownloadStream = function(spiderId) {
+    if (!this.downloadStreamMap) {
+        this.downloadStreamMap = new Map();
+    }
+    if (!this.downloadStreamMap.has(spiderId)) {
+        const self = this;
+        const downloadStream = new PassThrough();
+        downloadStream
+            .pipe(uniqueStream())
+            .pipe(new DownloadStream())
+            .pipe(new Writable({
+                objectMode: true,
+                write: (chunk, encoding, callback) => {
+                    self.handleDownload(
+                        chunk.output.body,
+                        chunk.output.headers,
+                        chunk.input,
+                        spiderId);
+                    callback();
+                }
+            }));
+        this.downloadStreamMap.set(spiderId, downloadStream);
+    }
+    return this.downloadStreamMap.get(spiderId);
+};
+
 
 Crawler.prototype.handleDownload = function(content, headers, url, spiderId) {
     this.spiders[spiderId].handleDownload(content, headers, {
@@ -181,9 +197,7 @@ Crawler.prototype.handleUrl = function(url, spiderId, contextUrl) {
             if (results[0] || results[1]) {
                 self.download({
                     "url": url,
-                    "context": {
-                        "spiderId": spiderId
-                    }
+                    "spiderId": spiderId
                 });
             }
             return results;
